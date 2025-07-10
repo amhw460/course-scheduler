@@ -1,2 +1,4 @@
 # course-scheduler
-currently non-functional in the way that it is returning the least optimized instead of the most optimized, need to invert model parameters
+tool to (hopefully) return a list of optimized sections when provided with a set of courses.
+
+currently broken on several levels, do not rely on :)
