@@ -276,21 +276,44 @@ for day in days:
                 if day == mday:
                     d.append((course, i, time_to_minutes(start), time_to_minutes(end)))
 
+    # if d:
+    #     temp = [decision_vars[(course, i)] for course, i, start_min, end_min in d]
+    #     model.AddBoolOr(temp).OnlyEnforceIf(daily_has_classes[day])
+    #
+    #     # Initialize earliest/latest properly when classes exist
+    #     model.Add(daily_earliest[day] == min(start_min for _, _, start_min, _ in d)).OnlyEnforceIf(
+    #         daily_has_classes[day])
+    #     model.Add(daily_latest[day] == max(end_min for _, _, _, end_min in d)).OnlyEnforceIf(daily_has_classes[day])
+    #
+    #     # Alternative approach: use constraints to find min/max
+    #     for course, i, start_min, end_min in d:
+    #         model.Add(daily_earliest[day] <= start_min).OnlyEnforceIf(decision_vars[(course, i)])
+    #         model.Add(daily_latest[day] >= end_min).OnlyEnforceIf(decision_vars[(course, i)])
+    #
+    # # Set uptime calculation
+    # model.Add(daily_uptime[day] == daily_latest[day] - daily_earliest[day]).OnlyEnforceIf(daily_has_classes[day])
+    # model.Add(daily_uptime[day] == 0).OnlyEnforceIf(daily_has_classes[day].Not())
+
     if d:
+        # Check if any classes are scheduled on this day
         temp = [decision_vars[(course, i)] for course, i, start_min, end_min in d]
         model.AddBoolOr(temp).OnlyEnforceIf(daily_has_classes[day])
 
-        # Initialize earliest/latest properly when classes exist
-        model.Add(daily_earliest[day] == min(start_min for _, _, start_min, _ in d)).OnlyEnforceIf(
-            daily_has_classes[day])
-        model.Add(daily_latest[day] == max(end_min for _, _, _, end_min in d)).OnlyEnforceIf(daily_has_classes[day])
-
-        # Alternative approach: use constraints to find min/max
+        # For each possible class time on this day, constrain earliest/latest
         for course, i, start_min, end_min in d:
             model.Add(daily_earliest[day] <= start_min).OnlyEnforceIf(decision_vars[(course, i)])
             model.Add(daily_latest[day] >= end_min).OnlyEnforceIf(decision_vars[(course, i)])
 
-    # Set uptime calculation
+        # When no classes, set reasonable defaults
+        model.Add(daily_earliest[day] == early).OnlyEnforceIf(daily_has_classes[day].Not())
+        model.Add(daily_latest[day] == early).OnlyEnforceIf(daily_has_classes[day].Not())
+    else:
+        # No possible classes on this day
+        model.Add(daily_has_classes[day] == 0)
+        model.Add(daily_earliest[day] == early)
+        model.Add(daily_latest[day] == early)
+
+        # Calculate uptime
     model.Add(daily_uptime[day] == daily_latest[day] - daily_earliest[day]).OnlyEnforceIf(daily_has_classes[day])
     model.Add(daily_uptime[day] == 0).OnlyEnforceIf(daily_has_classes[day].Not())
 
