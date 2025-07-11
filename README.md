@@ -1,4 +1,4 @@
 # course-scheduler
-tool to (hopefully) return a list of optimized sections when provided with a set of courses.
+should b working
 
-currently broken on several levels, do not rely on :)
+returns most optimized class schedule given list of classes at umd :
