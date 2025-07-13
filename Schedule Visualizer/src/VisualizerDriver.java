@@ -2,6 +2,10 @@ import java.awt.MouseInfo;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -12,11 +16,33 @@ public class VisualizerDriver {
     final static int delay = 20;
     public static int wait = 0;
     public static int width, height;
+
+    public static JSONReader jsonReader;
+
     public static void main(String[] args) throws Exception {     
         System.out.println("begin");
+
+        StringBuffer total = new StringBuffer();
+        List<String> strList = null;
+        try {
+            strList = Files.readAllLines(Paths.get(fileHunt("output.json").getAbsolutePath()));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        for (String str : strList) {
+            total.append(str + "\n");
+        }
+
+        jsonReader = new JSONReader(total.toString());
+
+
+
+
         mainframe.setSize(1920, 800);
         mainframe.setResizable(false);
-        
+        mainframe.setTitle("Course Schedule Visualizer");
         mainframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         //TODO: Figure out how to keep track of resize operations
@@ -61,7 +87,7 @@ public class VisualizerDriver {
         mainframe.setVisible(false);
         mainframe.setSize(width, height);
 
-        Visualization vizzy = new Visualization();
+        Visualization vizzy = new Visualization(jsonReader);
         mainframe.add(vizzy);
 
         mainframe.setVisible(true);
