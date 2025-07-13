@@ -379,4 +379,4 @@ if status == cp_model.OPTIMAL:
 print(f"Total credit hours in this semester: {tcredits}")
 
 with open('output.json', 'w') as f:
-    json.dump(data, f, indent = 4)
+    json.dump(final, f, indent = 4)
