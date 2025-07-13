@@ -91,7 +91,7 @@ public class Visualization extends JPanel {
     }
     
     private void drawDayHeaders(Graphics2D g2d) {
-        String[] dayNames = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        String[] dayNames = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
         Font headerFont = new Font("Segoe UI", Font.BOLD, 14);
         g2d.setFont(headerFont);
         

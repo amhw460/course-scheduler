@@ -47,9 +47,9 @@ public class Timing {
         new Color(192, 57, 43)     // Dark Red
     };
     
-    //Setup for the slots to be used
+    //Setup for the slots to be used - only weekdays (Mon-Fri)
     {
-        slots = new Rectangle2D[DayOfTheWeek.values().length-2];
+        slots = new Rectangle2D[5]; // Only Monday through Friday
         System.out.println("SLOTS: " + slots.length);
         double slotWidth = (VisualizerDriver.width - leftMargin - rightMargin) / slots.length;
         int allottedSpace = (VisualizerDriver.height - upperMargin - lowerMargin);
@@ -127,7 +127,17 @@ public class Timing {
             timeOfDay = "PM";
         }
 
-        return String.valueOf(hours) + ":" + String.valueOf(mins) + timeOfDay;
+        String hoursStr = String.valueOf(hours);
+        String minsStr = String.valueOf(mins);
+
+        if (hoursStr.length() == 1) {
+            hoursStr = "0" + hoursStr;
+        }
+        if (minsStr.length() == 1) {
+            minsStr = "0" + minsStr;
+        }
+
+        return hoursStr + ":" + minsStr + timeOfDay;
     }
 
     /** Converts hours and minutes to plain out minutes
@@ -151,10 +161,17 @@ public class Timing {
      * @return The visual block corresponding to this Timing
      */
     public Rectangle2D getScaledBlock() {
+        // Map day ordinal to 5-day layout (Monday=0, Tuesday=1, etc.)
+        int dayIndex = this.weekdate.ordinal();
+        if (dayIndex >= 5) {
+            // Skip Saturday and Sunday - they won't be displayed
+            return new Rectangle2D.Double(0, 0, 0, 0);
+        }
+        
         return new Rectangle2D.Double( //Rectangle2D
-            slots[this.weekdate.ordinal()].getX(), //X position of the weekday
+            slots[dayIndex].getX(), //X position of the weekday
             upperMargin + (startTime - startOfDay) * minuteToPXScale, //Go down by the upper offset and by the time, scaled to pixels
-            slots[this.weekdate.ordinal()].getWidth(), //The block has the width of its weekday
+            slots[dayIndex].getWidth(), //The block has the width of its weekday
             duration() * minuteToPXScale //The block is as tall as its duration scaled to pixels
         );
     }
