@@ -324,22 +324,22 @@ model.Minimize(total_uptime)
 
 solver = cp_model.CpSolver()
 status = solver.Solve(model)
-final = {}
-
+final = []
 if status == cp_model.OPTIMAL:
     print("Optimal schedule:")
 
     for course, sections in timeslots.items():
         for i, section in enumerate(sections):
-                        if solver.Value(decision_vars[(course, i)]) == 1:
+            if solver.Value(decision_vars[(course, i)]) == 1:
+                t = {}
                 print(f"\n{course} -> Section {i}:")
-                final["Course"] = course
+                t["Course"] = course
                 sct = get_instructor_and_section(TotalCourseSections, course, i)[1]
                 instruct = get_instructor_and_section(TotalCourseSections, course, i)[0]
-                final["ID"] = sct
-                final["Instructor(s)"] = instruct
+                t["ID"] = sct
+                t["Instructor(s)"] = instruct
                 print(f"Credits: {credits[course]}")
-                final["Times"] = [f"{day}: {start} - {end}" for day, start, end in section]
+                t["Times"] = [f"{day}: {start} - {end}" for day, start, end in section]
                 # scts = next((d[course] for d in TotalCourseSections if course in d), None)
                 # sect = scts[i]
                 # print(f"Section: {sect.get('section_id')} with {sect.get('instructor')}")
@@ -347,34 +347,7 @@ if status == cp_model.OPTIMAL:
                 for day, start, end in section:
                     print(f"  {day}: {start} - {end}")
                 print(f'{sct} with {instruct}')
-
-                # # Find the corresponding section in TotalCourseSections
-                # original_course = next(c for c in TotalCourseSections if c.get('Class') == course)
-                # original_sections = original_course.get('Sections')
-                #
-                # # Find matching section by comparing the schedule
-                # # We'll match based on the first time slot
-                # if section:  # Make sure section is not empty
-                #     first_day, first_start, first_end = section[0]
-                #
-                #     for orig_section in original_sections:
-                #         if orig_section.get('open'):  # Only check open sections
-                #             # Check if this original section matches our selected timeslot
-                #             orig_times = orig_section.get('times', [])
-                #             orig_days = orig_section.get('days', [])
-                #
-                #             # Simple matching - check if first time matches
-                #             if orig_times and len(orig_times) > 0:
-                #                 orig_time = orig_times[0]  # Like "14:00 - 15:15"
-                #                 orig_start = orig_time.split(' - ')[0].strip()
-                #                 orig_end = orig_time.split(' - ')[1].strip()
-                #
-                #                 # If times match and day is in the days list
-                #                 if (first_start == orig_start and first_end == orig_end and
-                #                         any(d in ['M', 'W', 'F'] for d in orig_days if first_day.startswith(d[:2]))):
-                #                     print(f"  Section ID: {orig_section.get('section_id')}")
-                #                     print(f"  Instructor(s): {', '.join(orig_section.get('instructor', ['TBA']))}")
-                #                     break
+                final.append(t)
 
 print(f"Total credit hours in this semester: {tcredits}")
 
