@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import pprint
 from ortools.sat.python import cp_model
+import json
 
 courselist = []
 professorblacklist = []
@@ -323,22 +324,29 @@ model.Minimize(total_uptime)
 
 solver = cp_model.CpSolver()
 status = solver.Solve(model)
+final = {}
 
 if status == cp_model.OPTIMAL:
     print("Optimal schedule:")
 
     for course, sections in timeslots.items():
         for i, section in enumerate(sections):
-            if solver.Value(decision_vars[(course, i)]) == 1:
+                        if solver.Value(decision_vars[(course, i)]) == 1:
                 print(f"\n{course} -> Section {i}:")
+                final["Course"] = course
+                sct = get_instructor_and_section(TotalCourseSections, course, i)[1]
+                instruct = get_instructor_and_section(TotalCourseSections, course, i)[0]
+                final["ID"] = sct
+                final["Instructor(s)"] = instruct
                 print(f"Credits: {credits[course]}")
+                final["Times"] = [f"{day}: {start} - {end}" for day, start, end in section]
                 # scts = next((d[course] for d in TotalCourseSections if course in d), None)
                 # sect = scts[i]
                 # print(f"Section: {sect.get('section_id')} with {sect.get('instructor')}")
                 # Print the schedule from timeslots
                 for day, start, end in section:
                     print(f"  {day}: {start} - {end}")
-                print(f'{get_instructor_and_section(TotalCourseSections, course, i)[1]} with {get_instructor_and_section(TotalCourseSections, course, i)[0]}')
+                print(f'{sct} with {instruct}')
 
                 # # Find the corresponding section in TotalCourseSections
                 # original_course = next(c for c in TotalCourseSections if c.get('Class') == course)
@@ -369,3 +377,6 @@ if status == cp_model.OPTIMAL:
                 #                     break
 
 print(f"Total credit hours in this semester: {tcredits}")
+
+with open('output.json', 'w') as f:
+    json.dump(data, f, indent = 4)
