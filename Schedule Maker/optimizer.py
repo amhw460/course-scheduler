@@ -89,7 +89,10 @@ for course in courselist:
     })
 
 # pprint.pprint(TotalCourseSections)
-
+if tcredits >= 21:
+    print("The amount of credits you're attempting to register requires administrative permission. Please make sure to get permission to take this courseload.")
+if tcredits < 12:
+    print("You need to register for more courses to maintain student standing.")
 timeslots = {}
 map = {
     'M': 'Monday',
